@@ -1,0 +1,75 @@
+-- Cria dois botões na tela do jogador que podem ser arrastados (versão para mobile)
+
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Criando o ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+
+-- Função para enviar a mensagem no chat
+local function sendMessage(message)
+    game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(message, "All")
+end
+
+-- Criando o primeiro botão (SPAM M)
+local buttonM = Instance.new("TextButton")
+buttonM.Parent = screenGui
+buttonM.Text = "SPAM M"
+buttonM.Size = UDim2.new(0, 100, 0, 30) -- botão menor
+buttonM.Position = UDim2.new(0.3, -50, 0.5, -15) -- posição inicial (centralizado)
+buttonM.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
+buttonM.TextColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho
+
+buttonM.MouseButton1Click:Connect(function()
+    sendMessage("//MAT SEM ERRO 🚩🐻")
+end)
+
+-- Criando o segundo botão (SPAM R)
+local buttonR = Instance.new("TextButton")
+buttonR.Parent = screenGui
+buttonR.Text = "SPAM R"
+buttonR.Size = UDim2.new(0, 100, 0, 30) -- botão menor
+buttonR.Position = UDim2.new(0.7, -50, 0.5, -15) -- posição inicial (diferente do SPAM M)
+buttonR.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Preto
+buttonR.TextColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho
+
+buttonR.MouseButton1Click:Connect(function()
+    sendMessage("//RENDER SEM ERRO 🐻🚩")
+end)
+
+-- Função para arrastar botões (toque para mobile)
+local function makeDraggable(button)
+    local dragging = false
+    local dragInput, touchStartPos, buttonStartPos
+
+    button.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            touchStartPos = input.Position
+            buttonStartPos = button.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    button.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - touchStartPos
+            button.Position = UDim2.new(buttonStartPos.X.Scale, buttonStartPos.X.Offset + delta.X, buttonStartPos.Y.Scale, buttonStartPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+-- Tornando ambos os botões arrastáveis
+makeDraggable(buttonM)
+makeDraggable(buttonR)
